@@ -1,9 +1,9 @@
-const axios = require('axios').default;
+import axios from '../configs/axios'
 
 export async function svcRegister(email, password){
     const result = await axios({
         method: 'post',
-        url: 'http://localhost/users',
+        url: '/users',
         data: {
             email: email,
             password: password
@@ -15,7 +15,11 @@ export async function svcRegister(email, password){
 export async function svcLogin(email, password){
     const result = await axios({
         method: 'post',
-        url: 'http://localhost',
+        url: '/tokens',
+        data: {
+            email: email,
+            password: password
+        },
     })
     return result
 }

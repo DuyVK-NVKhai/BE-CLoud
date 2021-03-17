@@ -13,7 +13,7 @@ export function register(req, res) {
 }
 
 export function login(req, res) {
-    const {email, password} = body
+    const {email, password} = req.body
     if(!valRegister(email, password)){
         sendError()
     }

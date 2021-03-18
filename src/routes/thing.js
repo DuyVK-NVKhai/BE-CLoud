@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post('/create', ThingController.createThing)
 router.get('/', ThingController.getAll)
-router.put('/:thingid', ThingController.updateThingInfo)
+router.put('/', ThingController.updateThingInfo)
 
 export default router;

@@ -19,8 +19,7 @@ export function createThing(req, res) {
 }
 
 export function updateThingInfo(req, res) {
-    const {thingid} = req.params
-    const {name, metadata} = req.body
+    const {thingid, name, metadata} = req.body
 
     if(!valUpdateInfo(thingid, name, metadata)){
         sendError()

@@ -1,0 +1,19 @@
+version: '3.6'
+
+# networks:
+#   docker_mainflux-base-net:
+#     external: true
+
+services:
+  be-mainflux:
+    image: api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    ports:
+      - 3000:3000
+    environment:
+      PROVISION_URL: "http://provision:8190"
+    # networks:
+    #   - docker_mainflux-base-net

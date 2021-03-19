@@ -1,0 +1,75 @@
+image: docker:latest
+
+stages:
+  - build
+  - deploy
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_DRIVER: overlay2
+
+.initdeploy: &initdeploy |
+  mkdir -p ~/.ssh
+  echo "$SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+  chmod 600 ~/.ssh/id_rsa
+  eval "$(ssh-agent -s)"
+  ssh-add ~/.ssh/id_rsa
+  ssh-keyscan -H $SERVER >> ~/.ssh/known_hosts
+
+.deploy: &deploy |
+  ssh $USER@$SERVER "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+  ssh $USER@$SERVER "docker exec -it redis redis-cli save" || true
+  ssh $USER@$SERVER "docker pull harbor.zinza.com.vn/medical/cms"
+  ssh $USER@$SERVER "docker stop cms" || true
+  ssh $USER@$SERVER "docker stop mongo" || true
+  ssh $USER@$SERVER "docker stop redis" || true
+  ssh $USER@$SERVER "docker stop nginx" || true
+  ssh $USER@$SERVER "docker rm cms" || true
+  ssh $USER@$SERVER "docker rm mongo" || true
+  ssh $USER@$SERVER "docker rm nginx" || true
+  ssh $USER@$SERVER "docker rm redis" || true
+  ssh $USER@$SERVER "cd /home/$USER/VCP && rm -rf docker-compose.yml" || true
+  ssh $USER@$SERVER "cd /home/$USER/VCP && rm -rf nginx/*" || true
+  scp ./Medical/docker-compose.prod.yml $USER@$SERVER:/home/$USER/VCP/docker-compose.yml
+  scp -r ./Medical/nginx $USER@$SERVER:/home/$USER/VCP
+  ssh $USER@$SERVER "cd /home/$USER/VCP/nginx && mkdir certs"
+  scp $CD_CERTS_SSL_CRT $USER@$SERVER:/home/$USER/VCP/nginx/certs/
+  scp $CD_CERTS_SSL_KEY $USER@$SERVER:/home/$USER/VCP/nginx/certs/
+  ssh $USER@$SERVER "cd /home/$USER/VCP/nginx/certs && mv CD_CERTS_SSL_CRT ssl.crt && mv CD_CERTS_SSL_KEY ssl.key"
+  ssh $USER@$SERVER "cd /home/$USER/VCP/nginx/certs && chmod 700 ssl.crt && chmod 700 ssl.key"
+  ssh $USER@$SERVER "cd /home/$USER/VCP && docker-compose up --detach"
+  ssh $USER@$SERVER "docker ps"
+
+BuildImage:
+  stage: build
+  variables:
+    OBJECTS_DIRECTORY: "obj"
+    NUGET_PACKAGES_DIRECTORY: ".nuget"
+    SOURCE_CODE_PATH: "*/*/"
+  cache:
+    key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/project.assets.json"
+      - "$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/*.csproj.nuget.*"
+      - "$NUGET_PACKAGES_DIRECTORY"
+    policy: pull-push
+
+  when: manual
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t harbor.zinza.com.vn/medical/cms ./Medical
+    - docker push harbor.zinza.com.vn/medical/cms
+
+# Deploy To Server
+Production:
+  stage: deploy
+  image: gitlab/dind:latest
+  when: manual
+  cache: {}
+  before_script:
+    - *initdeploy
+  script:
+    - *deploy

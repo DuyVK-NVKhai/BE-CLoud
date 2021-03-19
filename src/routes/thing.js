@@ -3,8 +3,9 @@ import * as ThingController from "../controllers/thing"
 
 const router = express.Router();
 
-router.post('/create', ThingController.createThing)
+router.post('/', ThingController.createThing)
 router.get('/', ThingController.getAll)
 router.put('/', ThingController.updateThingInfo)
+router.post('/gateway', ThingController.createGateway)
 
 export default router;

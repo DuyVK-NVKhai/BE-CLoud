@@ -12,5 +12,4 @@ app.use(cors());
 app.use("/api/user", UserRouter)
 app.use("/api/thing", ThingRouter)
 
-
 export {app}

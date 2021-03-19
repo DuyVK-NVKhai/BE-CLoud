@@ -1,11 +1,48 @@
 import axios from '../configs/axios'
 import {forwardNat} from '../helper/forwardNat'
+import {url as URL} from '../configs/common'
 
-export async function getAll(){
+export async function getAll(token){
     const result = await axios({
         method: 'get',
         url: '/things',
+        headers: {
+            "Authorization": token
+        }
     })
+    return result
+}
+
+export async function svcCreate(name, token){
+    const result = await axios({
+        method: 'post',
+        url: '/things',
+        headers: {
+            "Authorization": token
+        },
+        data: {name}
+    })
+    return result
+}
+
+export async function svcCreateGtw(id, key, token){
+    const result = await axios({
+        method: 'post',
+        url: '/mapping',
+        baseURL: URL.PROVISION_URL,
+        headers: {
+            "Authorization": token
+        },
+        data: {
+            "external_id": id,
+            "external_key": key
+        }
+    })
+    if(result.status == 200 || result.status == 201){
+        return {
+            success: result.success
+        }
+    }
     return result
 }
 

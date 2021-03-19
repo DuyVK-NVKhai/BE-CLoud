@@ -11,7 +11,6 @@ exports.sendSuccess = (req, res) => (result) => {
 
 exports.sendError = (req, res) => (error) => {
     const message = typeof error === 'string' ? error : error.message || ''
-    console.log({error})
     const status = error.response.status || 400
 
     const response = {

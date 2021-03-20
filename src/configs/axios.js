@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInst = axios.default.create({
-    baseURL: 'http://localhost',
+    baseURL: 'http://nginx',
     headers: {
         "Content-Type": "application/json",
     }

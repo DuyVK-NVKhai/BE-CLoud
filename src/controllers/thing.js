@@ -2,7 +2,7 @@ import * as svcThing from "../services/svc-thing"
 import { valUpdateInfo } from '../helper/validate'
 import { sendSuccess, sendError } from "../helper/response"
 import * as mqttCli from '../configs/mqtt'
-import nats from '../configs/nats'
+import * as nats from '../configs/nats'
 import * as gateways from '../helper/gateways'
 import * as things from '../helper/things'
 import {hassApi} from '../configs/common'
@@ -28,11 +28,9 @@ export function createGateway(req, res) {
 export async function createThing(req, res) {
     try{
         const token = req.headers.authorization
-        let { name, extKey, gatewayId } = req.body
-        
-        const {subtopicReq, topicRes, id, key} = await gateways.getTopic(gatewayId, hassApi.ADD_DEVICE, token)
-
-        const payload = unpack(JSON.stringify({external_key: extKey}))
+        let { name, apitoken, IP, gatewayId } = req.body
+        const {subtopicReq, topicRes, id, key, control_cnl} = await gateways.getTopic(gatewayId, hassApi.ADD_DEVICE, token)
+        const payload = unpack(JSON.stringify({apitoken, IP}))
         const msg = {
             channel: control_cnl,
             subtopic: subtopicReq,
@@ -40,15 +38,15 @@ export async function createThing(req, res) {
         }
         nats.forwardNat(nats.getTopic(control_cnl), msg)
 
-        let result = await mqttCli.subscribe(topicRes, id, key)
-
         console.log("Subcribe mqtt on topic: ", topicRes)
+        let result = await mqttCli.subscribe(topicRes, id, key)
         console.log("Message from topic " + topicRes + ": " + result )
 
-        svcThing.svcCreate(name, extKey, token)
+        svcThing.svcCreate(name, apitoken, token)
         .then(sendSuccess(req, res))
         .catch(sendError(req, res))
     }catch(e){
+        console.log(e)
         sendError(e)
     }
 }

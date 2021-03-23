@@ -5,7 +5,7 @@ export const createConn = async function(){
     return await connect({ servers: "nats:4222" });
 }
 
-export const getTopic = function(ctlChann){
+export const getTopic = function(control_cnl){
   return `channels.${control_cnl}`
 }
 

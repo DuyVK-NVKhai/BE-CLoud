@@ -1,5 +1,5 @@
 import axios from '../configs/axios'
-import {forwardNat} from '../helper/forwardNat'
+import {forwardNat} from '../configs/nats'
 import {url as URL} from '../configs/common'
 
 export async function getAll(token){
@@ -13,14 +13,28 @@ export async function getAll(token){
     return result
 }
 
-export async function svcCreate(name, token){
+export async function getThing(id, token){
+    const result = await axios({
+        method: 'get',
+        url: `/things/${id}`,
+        headers: {
+            "Authorization": token
+        }
+    })
+    return result.data
+}
+
+export async function svcCreate(name, extKey, token){
     const result = await axios({
         method: 'post',
         url: '/things',
         headers: {
             "Authorization": token
         },
-        data: {name}
+        data: {
+            name: name,
+            key: extKey
+        }
     })
     return result
 }

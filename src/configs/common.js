@@ -7,7 +7,8 @@ export const url = {
 }
 
 export const hassApi = {
-    SCAN_DEVICE: "get/scan/device/around",
+    SCAN_DEVICE: "get_states",
+    SERVICE: "call_service",
     ADD_DEVICE: "post/add/device",
     DELETE_DEVICE: "delete/device"
 }

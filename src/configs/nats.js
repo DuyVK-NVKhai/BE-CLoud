@@ -10,10 +10,12 @@ export const getTopic = function(control_cnl){
 }
 
 export const forwardNat = async function(topic, msg){
-    const msgPtb = await encodeProtob(msg, '/app/src/msg_protobuf/message.proto', 'messaging.Message')
-    const sc = StringCodec();
-    const nc = await createConn()
-    nc.publish(topic, sc.encode(msgPtb));
+    setTimeout(async ()=>{
+      const msgPtb = await encodeProtob(msg, '/app/src/msg_protobuf/message.proto', 'messaging.Message')
+      const sc = StringCodec();
+      const nc = await createConn()
+      nc.publish(topic, sc.encode(msgPtb));
+    }, 100)
 }
 
 export const subscribeNat = async function(topic){

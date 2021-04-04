@@ -1,8 +1,9 @@
 import * as svcThing from '../services/svc-thing'
 
-export const getTopic = async function (gatewayId, hassApi, token) {
+export const getInfo = async function (gatewayId, hassApi, token) {
     try{
         const gateway = await svcThing.getThing(gatewayId, token);
+        console.log({gateway})
         if (!gateway) {
             throw new Error("Not found geteway")
         }
@@ -10,14 +11,14 @@ export const getTopic = async function (gatewayId, hassApi, token) {
         const extGateway = gateway.metadata.external_key;
         const now = Date.now()
         return {
-            subtopicReq: `services/${extGateway}/${now}/hass/${hassApi}`,
-            topicRes: `channels/${control_cnl}/messages/export/${extGateway}/${now}/hass/${hassApi}`,
+            subtopicReq: `services/${extGateway}/${now}/${hassApi}`,
+            topicRes: `channels/${control_cnl}/messages/export/${extGateway}/${now}/${hassApi}`,
             id: gateway.id,
-            key: gateway.key,
+            key_mqtt: gateway.key,
             control_cnl
         }
     }catch(e){
-        console.log(e)
+        // console.log(e)
         throw e
     }
 }

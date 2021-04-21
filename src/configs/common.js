@@ -13,6 +13,4 @@ export const hassApi = {
     DELETE_DEVICE: "delete/device"
 }
 
-export const MQTT_URL = 'mqtt://nginx:1883'
-
 export default common;

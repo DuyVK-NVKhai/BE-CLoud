@@ -3,7 +3,6 @@ import * as svcThing from '../services/svc-thing'
 export const getInfo = async function (gatewayId, hassApi, token) {
     try{
         const gateway = await svcThing.getThing(gatewayId, token);
-        console.log({gateway})
         if (!gateway) {
             throw new Error("Not found geteway")
         }
@@ -14,7 +13,6 @@ export const getInfo = async function (gatewayId, hassApi, token) {
             subtopicReq: `services/${extGateway}/${now}/${hassApi}`,
             topicRes: `channels/${control_cnl}/messages/export/${extGateway}/${now}/${hassApi}`,
             id: gateway.id,
-            key_mqtt: gateway.key,
             control_cnl
         }
     }catch(e){

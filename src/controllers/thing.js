@@ -1,7 +1,7 @@
 import * as svcThing from "../services/svc-thing"
 import { valUpdateInfo } from '../helper/validate'
 import { sendSuccess, sendError } from "../helper/response"
-import * as mqttCli from '../configs/mqtt'
+import {natClient} from '../app'
 import * as nats from '../configs/nats'
 import * as gateways from '../helper/gateways'
 import * as things from '../helper/things'
@@ -26,10 +26,9 @@ export async function createThing(req, res) {
             subtopic: subtopicReq,
             payload: payload
         }
-        nats.forwardNat(nats.getTopic(control_cnl), msg)
+        natClient.forwardNat(nats.getTopic(control_cnl), msg)
 
-        console.log("Subcribe mqtt on topic: ", topicRes)
-        let result = await mqttCli.subscribe(topicRes, id, key)
+        let result = await natClient.subscribeNat(nats.getTopic(control_cnl))
         console.log("Message from topic " + topicRes + ": " + result)
 
         svcThing.svcCreate(name, apitoken, token)
@@ -59,7 +58,7 @@ export async function updateThingInfo(req, res) {
                 sendError(req, res)
             }
             
-            const { subtopicReq, topicRes, control_cnl, id, key_mqtt } = await gateways.getInfo(gatewayid, hassApi.SERVICE, token)
+            const { subtopicReq, control_cnl } = await gateways.getInfo(gatewayid, hassApi.SERVICE, token)
             
             // sonoff_1000b84612
             const payload = helper.unpack(`${action}.${key}`)
@@ -69,10 +68,10 @@ export async function updateThingInfo(req, res) {
                 payload: payload
             }
     
-            nats.forwardNat(nats.getTopic(control_cnl), msg)
+            natClient.forwardNat(nats.getTopic(control_cnl), msg)
             // subscribe 
 
-            let result = await mqttCli.subscribe(topicRes, id, key_mqtt)
+            let result = await natClient.subscribeNat(nats.getTopic(control_cnl))
             result = JSON.parse(result.toString())
             if(result.Data && result.Data.success){
                 // svcThing.updateInfo(thingid, action, metadata)
@@ -101,11 +100,10 @@ export async function deleteThing(req, res) {
             subtopic: subtopicReq,
             payload: payload
         }
-        nats.forwardNat(nats.getTopic(control_cnl), msg)
+        natClient.forwardNat(nats.getTopic(control_cnl), msg)
 
-        let result = await mqttCli.subscribe(topicRes, id, key)
+        let result = await natClient.subscribeNat(nats.getTopic(control_cnl))
 
-        console.log("Subcribe mqtt on topic: ", topicRes)
         console.log("Message from topic " + topicRes + ": " + result)
 
         svcThing.svcDisable(thingId, token)
@@ -155,10 +153,10 @@ export async function scanThing(req, res) {
             subtopic: subtopicReq,
             payload: payload
         }
-        nats.forwardNat(nats.getTopic(control_cnl), msg)
-        // subscribe 
-        let result = await mqttCli.subscribe(topicRes, id, key)
-        result = JSON.parse(result.toString())
+        natClient.forwardNat(nats.getTopic(control_cnl), msg)
+        let result = await natClient.subscribeNat(nats.getTopic(control_cnl))
+        console.log({result})
+        // result = JSON.parse(result.toString())
         // let listDevice = result.Data;
         // console.log({listDevice})
         // let allDevice = await svcThing.getByGateway(token, gateway_id)

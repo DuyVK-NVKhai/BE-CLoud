@@ -116,8 +116,6 @@ export async function getThingByEntity(entity_id, controlChannel, token){
     })
     let thingId
     result.data.things.forEach((thing) => {
-        console.log({thing})
-        console.log({entity_id})
         if(thing.metadata.entity_id == entity_id){
             thingId = thing.id
         }
@@ -125,9 +123,8 @@ export async function getThingByEntity(entity_id, controlChannel, token){
     return thingId
 }
 
-export async function updateThing(id, name, data, token){
+export async function updateThing(id, data, token){
     try{
-
         let resultGetAllThings = await axios({
             method: 'put',
             url: `/things/${id}`,
@@ -137,7 +134,6 @@ export async function updateThing(id, name, data, token){
             },
             data
         })
-        console.log(resultGetAllThings)
         return resultGetAllThings;
     }catch(e){
         console.log(e)

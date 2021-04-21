@@ -1,41 +1,41 @@
 const { connect, StringCodec } = require("nats");
 import { encodeProtob } from "../helper/protobuf"
+const sc = StringCodec();
 
-export const createConn = async function(){
-    return await connect({ servers: "nats:4222" });
-}
+export const natClient = async () => {
+  var nc = await createConn()
 
-export const getTopic = function(control_cnl){
-  return `channels.${control_cnl}`
-}
-
-export const forwardNat = async function(topic, msg){
-    setTimeout(async ()=>{
+  const forwardNat = async function (topic, msg) {
+    setTimeout(async () => {
       const msgPtb = await encodeProtob(msg, '/app/src/msg_protobuf/message.proto', 'messaging.Message')
-      const sc = StringCodec();
-      const nc = await createConn()
       nc.publish(topic, sc.encode(msgPtb));
     }, 100)
+  }
+  
+  const subscribeNat = async function (topic) {
+    const sub = await nc.subscribe(topic)
+    let result = await handleRequest(sub)
+    return result
+  }
+  
+  return {
+    forwardNat,
+    subscribeNat
+  }
 }
 
-export const subscribeNat = async function(topic){
-    const nc = await createConn()
-    const sub = nc.subscribe(topic)
-    handleRequest(sub)
+const createConn = async function () {
+  return connect({ servers: "nats:4222" });
 }
 
 async function handleRequest(s) {
-    console.log("Begin subscribe nat")
+  return new Promise(async (resolve, reject) => {
     for await (const m of s) {
-      // respond returns true if the message had a reply subject, thus it could respond
-      if (m.respond(m.data)) {
-        console.log(
-          `#${s.getProcessed()} echoed ${sc.decode(m.data)}`,
-        );
-      } else {
-        console.log(
-          `#${s.getProcessed()} ignoring request - no reply subject`,
-        );
-      }
+      resolve(sc.decode(m.data))
     }
-  }
+  })
+}
+
+export const getTopic = function (control_cnl) {
+  return `channels.${control_cnl}`
+}

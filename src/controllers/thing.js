@@ -29,7 +29,6 @@ export async function createThing(req, res) {
         natClient.forwardNat(nats.getTopic(control_cnl), msg)
 
         let result = await natClient.subscribeNat(nats.getTopic(control_cnl))
-        console.log("Message from topic " + topicRes + ": " + result)
 
         svcThing.svcCreate(name, apitoken, token)
             .then(sendSuccess(req, res))
@@ -42,7 +41,6 @@ export async function createThing(req, res) {
 
 export async function getDeviceOfGateway(req, res) {
     const token = req.headers.authorization
-    console.log("Get device of gateway")
     const {gateway_id} = req.params
     svcThing.getByGateway(token, gateway_id)
         .then(sendSuccess(req, res))
@@ -147,22 +145,21 @@ export async function scanThing(req, res) {
 
         const { subtopicReq, topicRes, control_cnl, id, key } = await gateways.getInfo(gateway_id, hassApi.SCAN_DEVICE, token)
 
-        const payload = helper.unpack("Hello, xin chao edge")
+        const payload = helper.unpack("Message")
         const msg = {
             channel: control_cnl,
             subtopic: subtopicReq,
             payload: payload
         }
-        natClient.forwardNat(nats.getTopic(control_cnl), msg)
+        natClient.forwardNat("channels.scanthing", msg)
         let result = await natClient.subscribeNat(nats.getTopic(control_cnl))
-        console.log({result})
-        // result = JSON.parse(result.toString())
         // let listDevice = result.Data;
         // console.log({listDevice})
         // let allDevice = await svcThing.getByGateway(token, gateway_id)
         // console.log({allDevice});
         // // add device new to db
         // allDevice.forEach((dvc) => {
+        //     console.log({dvc})
         //     // let index = listDevice.result.indexOf(m => m.entity_id == dvc.metadata.)
         // })
         // do something

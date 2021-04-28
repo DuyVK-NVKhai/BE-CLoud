@@ -26,6 +26,8 @@ export async function getByGateway(token, gatewayId){
             "Authorization": token
         }
     })
+    console.log(controlChannel)
+    console.log({result})
     return {
         data: result.data.things
     }

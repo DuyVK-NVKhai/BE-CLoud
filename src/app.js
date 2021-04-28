@@ -16,13 +16,13 @@ app.use(cors());
 app.use("/api/user", UserRouter)
 app.use("/api/thing", ThingRouter)
 
-export const natClient = nats.natClient
+export const natClient = nats.natClient()
 
 //channels.49610741-71eb-4b34-906f-f02c2ac1a9e5.export.realtime.raspberry-104
-// nats.subscribeNat(natcn, "channels.*.*.realtime.*")
-
-// export const mqttConn = mqttCli.createConnVerne()
-// const subMqtt = mqttCli.createSubVerne(mqttConn, "channels/#/realtime/#")
+// while (true) {
+//     let sub = natClient.subscribeNat(natcn, "channels.*.*.realtime.*")
+//     console.log(sub)
+// }
 
 // subMqtt.on('message',async function (topic, payload, packet) {
 //     try{

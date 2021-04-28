@@ -1,7 +1,22 @@
 const protobuf = require('protobufjs');
 
-export const encodeProtob = async function(msg, filePtb, type){
-    const root = await protobuf.load(filePtb);
-    const User = root.lookupType(type);
-    return User.encode(msg).finish();
+export const protoTool = () => {
+    let filePtb = '/app/src/msg_protobuf/message.proto'
+    let type = 'messaging.Message'
+    let encodeProtob = async function(msg){
+        const root = await protobuf.load(filePtb);
+        const User = root.lookupType(type);
+        return User.encode(msg).finish();
+    }
+
+    let decodeProtob = async function(buffer){
+        const root = await protobuf.load(filePtb);
+        const User = root.lookupType(type);
+        return User.decode(buffer);
+    }
+
+    return {
+        encodeProtob,
+        decodeProtob
+    }
 }

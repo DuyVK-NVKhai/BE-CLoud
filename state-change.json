@@ -1,0 +1,59 @@
+{
+    "id": 1619653873836,
+    "type": "event",
+    "event": {
+        "event_type": "state_changed",
+        "data": {
+            "entity_id": "switch.sonoff_1000b84612",
+            "old_state": {
+                "entity_id": "switch.sonoff_1000b84612",
+                "state": "off",
+                "attributes": {
+                    "manufacturer": "SONOFF",
+                    "model": "S26",
+                    "sw_version": "PSA-B01-GL v3.5.0",
+                    "cloud": "online",
+                    "rssi": -54,
+                    "local": "online",
+                    "friendly_name": "\u1ed4 c\u1eafm th\u00f4ng minh",
+                    "supported_features": 0
+                },
+                "last_changed": "2021-04-28T23:51:32.239728+00:00",
+                "last_updated": "2021-04-28T23:51:32.239728+00:00",
+                "context": {
+                    "id": "2bf4262ea465bbd7d4dd49b88968ad0c",
+                    "parent_id": null,
+                    "user_id": "2349cca1b9204a759ed732ce02699803"
+                }
+            },
+            "new_state": {
+                "entity_id": "switch.sonoff_1000b84612",
+                "state": "on",
+                "attributes": {
+                    "manufacturer": "SONOFF",
+                    "model": "S26",
+                    "sw_version": "PSA-B01-GL v3.5.0",
+                    "cloud": "online",
+                    "rssi": -54,
+                    "local": "online",
+                    "friendly_name": "\u1ed4 c\u1eafm th\u00f4ng minh",
+                    "supported_features": 0
+                },
+                "last_changed": "2021-04-28T23:53:36.295867+00:00",
+                "last_updated": "2021-04-28T23:53:36.295867+00:00",
+                "context": {
+                    "id": "e2fe97be0305003a7f72b7757a99c03c",
+                    "parent_id": null,
+                    "user_id": "2349cca1b9204a759ed732ce02699803"
+                }
+            }
+        },
+        "origin": "LOCAL",
+        "time_fired": "2021-04-28T23:53:36.295867+00:00",
+        "context": {
+            "id": "e2fe97be0305003a7f72b7757a99c03c",
+            "parent_id": null,
+            "user_id": "2349cca1b9204a759ed732ce02699803"
+        }
+    }
+}

@@ -1,11 +1,13 @@
 import axios from '../configs/axios'
 import {forwardNat} from '../configs/nats'
 import {url as URL} from '../configs/common'
+import { createThing } from '../controllers/thing'
 
-export async function getAll(token){
+export async function getAll(token, params){
     const result = await axios({
         method: 'get',
         url: '/things',
+        params,
         headers: {
             "Authorization": token
         }
@@ -26,10 +28,18 @@ export async function getByGateway(token, gatewayId){
             "Authorization": token
         }
     })
-    console.log(controlChannel)
-    console.log({result})
     return {
         data: result.data.things
+    }
+}
+
+export async function getGatewayByChannel(controlChannel, token){
+    let result = await svcGetGtw(token)
+    let allThing = result.data
+    for(let i = 0; i < allThing.length; i++){
+        if(allThing[i].metadata.ctrl_channel_id == controlChannel){
+            return allThing[i]
+        }
     }
 }
 
@@ -44,7 +54,7 @@ export async function getThing(id, token){
     return result.data
 }
 
-export async function svcCreate(name, extKey, token){
+export async function svcCreate(name, extKey, data, token){
     const result = await axios({
         method: 'post',
         url: '/things',
@@ -53,7 +63,8 @@ export async function svcCreate(name, extKey, token){
         },
         data: {
             name: name,
-            key: extKey
+            key: extKey,
+            metadata: data
         }
     })
     return result
@@ -67,6 +78,10 @@ export async function svcGetGtw(token, id = ""){
     const result = await axios({
         method: 'get',
         url,
+        params: {
+            limit: 100,
+            offset: 0
+        },
         headers: {
             "Authorization": token
         },
@@ -106,6 +121,17 @@ export async function svcCreateGtw(id, key, name, token){
         }
     }
     return result
+}
+
+export async function getThingByGateway(controlChannel, token){
+    const result = await axios({
+        method: 'get',
+        url: `/channels/${controlChannel}/things`,
+        headers: {
+            "Authorization": token
+        }
+    })
+    return result.data.things
 }
 
 export async function getThingByEntity(entity_id, controlChannel, token){
@@ -153,30 +179,44 @@ export async function updateInfo(id, name, metadata, token){
             metadata
         }
     })
+}
 
-    let result
-    if(resultGetAllThings.total > 0){
-        let listControlChannel = []
-        resultGetAllThings.things.foreach((thing) => {
-            if(thing.metadata && thing.metadata.type == "gateway"){
-                listControlChannel.push(things.metadata.ctrl_channel_id)
-            }
-        })
-        
-        listControlChannel.foreach(chnl => {
-            metadata = Object.assign(metadata, {Channel: chnl})
-            forwardNat("channels.updateNat", {
-                id, name, metadata
-            })
-        })
-        result = await axios({
-            method: 'put',
-            url: `/things/${id}`,
-            data: {
-                name,
-                metadata
-            }
-        })
-    }
-    return result
+export async function svcDisable(thingId, token) {
+    await axios({
+        method: 'delete',
+        url: `/things/${thingId}`,
+        headers: {
+            "Authorization": token
+        },
+    })
+}
+
+export async function connectThingToChannel(thingids, channels, token)
+{
+    let result = await axios({
+        method: 'post',
+        url: `/connect`,
+        headers: {
+            "Authorization": token
+        },
+        data: {
+            channel_ids: channels,
+            thing_ids: thingids
+        }
+    })
+}
+
+export async function addThingToGateway(channelCtl, data, token) {
+    let key = "key-" + Date.now()
+    let name = "name-" + Date.now()
+    await svcCreate(name, key, data, token)
+    let result = await getAll(token, {
+        offset: 0,
+        limit: 10,
+        name
+    })
+    let allThing = result.data.things
+    let listThingNew = [allThing[0].id]
+    let listChannel = [channelCtl]    
+    await connectThingToChannel(listThingNew, listChannel, token)
 }

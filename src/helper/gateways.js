@@ -8,10 +8,7 @@ export const getInfo = async function (gatewayId, hassApi, token) {
         }
         const control_cnl = gateway.metadata.ctrl_channel_id;
         const extGateway = gateway.metadata.external_key;
-        const now = Date.now()
         return {
-            subtopicReq: `services/${extGateway}/${now}/${hassApi}`,
-            topicRes: `channels/${control_cnl}/messages/export/${extGateway}/${now}/${hassApi}`,
             id: gateway.id,
             control_cnl
         }

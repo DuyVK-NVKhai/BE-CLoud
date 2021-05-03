@@ -21,5 +21,6 @@ export async function svcLogin(email, password){
             password: password
         },
     })
+    result.data.username = email
     return result
 }

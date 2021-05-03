@@ -7,13 +7,17 @@ export const natClient = () => {
   var nc = null
 
   const forwardNat = async function (topic, msg) {
-    if(!nc){
-      nc = await createConn()
+    try{
+      if(!nc){
+        nc = await createConn()
+      }
+      setTimeout(async () => {
+        const msgPtb = await _protoTool.encodeProtob(msg)
+        nc.publish(topic, sc.encode(msgPtb));
+      }, 100)
+    }catch(e){
+      console.log(e)
     }
-    setTimeout(async () => {
-      const msgPtb = await _protoTool.encodeProtob(msg)
-      nc.publish(topic, sc.encode(msgPtb));
-    }, 100)
   }
   
   const subscribeNat = async function (topic) {
@@ -26,21 +30,19 @@ export const natClient = () => {
   }
   
   return {
+    nc,
     forwardNat,
     subscribeNat
   }
 }
 
-const createConn = async function () {
+export const createConn = async function () {
   return connect({ servers: "nats:4222" });
 }
 
 async function handleRequest(s) {
   return new Promise(async (resolve, reject) => {
     for await (const m of s) {
-      const msgPtb = await _protoTool.decodeProtob(m.data)
-      var dataNat = msgPtb.payload.toString('utf8').replace(/\0/g, '')
-      console.log(dataNat)
       resolve(dataNat)
     }
   })
@@ -48,4 +50,10 @@ async function handleRequest(s) {
 
 export const getTopic = function (control_cnl) {
   return `channels.${control_cnl}.>`
+}
+
+export const decodeMessageNat = async function (mes) {
+  let msgPtb = await _protoTool.decodeProtob(mes)
+  var dataNat = msgPtb.payload.toString('utf8').replace(/\0/g, '')
+  return dataNat
 }

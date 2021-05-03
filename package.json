@@ -21,6 +21,7 @@
     "nats": "^2.0.0",
     "nodemon": "^2.0.7",
     "protobufjs": "^6.10.2",
-    "socket.io": "^4.0.1"
+    "socket.io": "^4.0.1",
+    "websocket": "^1.0.34"
   }
 }

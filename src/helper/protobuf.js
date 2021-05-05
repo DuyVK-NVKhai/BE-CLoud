@@ -1,7 +1,7 @@
 const protobuf = require('protobufjs');
 
 export const protoTool = () => {
-    let filePtb = '/app/src/msg_protobuf/message.proto'
+    let filePtb = '/app/src/protobuf/message.proto'
     let type = 'messaging.Message'
     let encodeProtob = async function(msg){
         const root = await protobuf.load(filePtb);

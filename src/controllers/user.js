@@ -1,6 +1,6 @@
 import {svcRegister, svcLogin} from "../services/svc-user"
 import {valRegister} from '../helper/validate'
-import {sendSuccess, sendError} from "../helper/response"
+import {sendSuccess, sendError} from "../utils/response"
 
 export function register(req, res) {
     const {email, password} = req.body

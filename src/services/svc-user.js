@@ -1,4 +1,5 @@
 import axios from '../configs/axios'
+import {getAll} from './svc-thing'
 
 export async function svcRegister(email, password){
     const result = await axios({

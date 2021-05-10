@@ -1,5 +1,5 @@
 const { connect, StringCodec } = require("nats");
-import { protoTool } from "../helper/protobuf"
+import { protoTool } from "./protobuf"
 import {handleData} from '../handler/handler'
 const sc = StringCodec();
 const _protoTool = protoTool()
@@ -21,7 +21,7 @@ export const natClient = () => {
   const subscribe = async function(channel, handler) {
     if(!nc)
     {
-        nc = await nats.createConn()
+        nc = await createConn()
     }
     const sub = nc.subscribe(channel);
     (async () => {
@@ -50,7 +50,7 @@ export const getTopic = (control_cnl) => `channels.${control_cnl}.>`
 
 export const getChnlRealtime = () => "channels.*.*.gateway"
 
-const decodeMessageNat = async function (mes) {
+export const decodeMessageNat = async function (mes) {
   let msgPtb = await _protoTool.decodeProtob(mes)
   var dataNat = msgPtb.payload.toString('utf8').replace(/\0/g, '')
   return dataNat

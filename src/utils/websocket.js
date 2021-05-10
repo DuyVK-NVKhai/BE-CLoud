@@ -1,4 +1,5 @@
 var WebSocketServer = require('websocket').server;
+var {authenToken} = require('../helper/authentication')
 
 export const createWbs = (server) => {
     let wsClient = []
@@ -11,8 +12,17 @@ export const createWbs = (server) => {
     wsServer.on('request', function(request) {
         var connection = request.accept('echo-protocol', request.origin);
         if(request.resourceURL.pathname){
-            let clientId = request.resourceURL.pathname.substring(1)
-            wsClient[clientId] = connection
+            let params = request.resourceURL.pathname.substring(1)
+            let arr = params.split("/")
+            console.log({arr})
+            if(arr.length >= 2 && authenToken(arr[1])){
+                wsClient[arr[0]] = connection
+            }else{
+                connection.sendUTF(JSON.stringify({
+                    result: false,
+                    message: "Authen failed"
+                }))
+            }
         }
     });
     return {wsServer, wsClient}    

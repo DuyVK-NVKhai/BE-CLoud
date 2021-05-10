@@ -1,9 +1,8 @@
 import * as svcThing from "../services/svc-thing"
 import { valUpdateInfo } from '../helper/validate'
-import { sendSuccess, sendError } from "../helper/response"
+import { sendSuccess, sendError } from "../utils/response"
 import {natClient} from '../app'
-import * as nats from '../configs/nats'
-import * as gateways from '../helper/gateways'
+import * as nats from '../utils/nats'
 import * as things from '../helper/things'
 import common, { hassApi } from '../configs/common'
 import * as helper from '../helper/common'
@@ -18,8 +17,8 @@ export function getAll(req, res) {
 export async function createThing(req, res) {
     try {
         const token = req.headers.authorization
-        let { name, apitoken, IP, gatewayId } = req.body
-        const { subtopicReq, topicRes, id, key, control_cnl } = await gateways.getInfo(gatewayId, hassApi.ADD_DEVICE, token)
+        let { hassReq, gatewayId } = req.body
+        const { subtopicReq, control_cnl } = await things.getInfoGateway(gatewayId, hassApi.ADD_DEVICE, token)
         const payload = helper.unpack(JSON.stringify({ apitoken, IP }))
         const msg = {
             channel: control_cnl,
@@ -28,9 +27,9 @@ export async function createThing(req, res) {
         }
         natClient.forwardNat(nats.getTopic(control_cnl), msg)
 
-        svcThing.svcCreate(name, apitoken, token)
-            .then(sendSuccess(req, res))
-            .catch(sendError(req, res))
+        sendSuccess(req, res)({
+            data: ""
+        })
     } catch (e) {
         console.log(e)
         sendError(e)
@@ -54,7 +53,7 @@ export async function updateThingInfo(req, res) {
                 sendError(req, res)
             }
             
-            const { subtopicReq, control_cnl } = await gateways.getInfo(gatewayid, hassApi.SERVICE, token)
+            const { control_cnl } = await things.getInfoGateway(gatewayid, hassApi.SERVICE, token)
             
             // sonoff_1000b84612
             const payload = helper.unpack(`${action}.${thingid}`)
@@ -128,7 +127,7 @@ export async function scanThing(req, res) {
         const { gateway_id } = req.params;
         const token = req.headers.authorization
 
-        const { control_cnl } = await gateways.getInfo(gateway_id, hassApi.SCAN_DEVICE, token) 
+        const { control_cnl } = await things.getInfoGateway(gateway_id, hassApi.SCAN_DEVICE, token) 
 
         const msg = {
             channel: control_cnl,

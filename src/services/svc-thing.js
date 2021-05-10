@@ -1,5 +1,5 @@
 import axios from '../configs/axios'
-import {forwardNat} from '../configs/nats'
+import {forwardNat} from '../utils/nats'
 import {url as URL} from '../configs/common'
 import { createThing } from '../controllers/thing'
 

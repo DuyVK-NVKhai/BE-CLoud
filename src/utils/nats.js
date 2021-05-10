@@ -1,8 +1,8 @@
 const { connect, StringCodec } = require("nats");
-import { protoTool } from "./protobuf"
 import {handleData} from '../handler/handler'
+import * as Schema from '../protobuf/message_pb'
+import * as common from '../helper/common'
 const sc = StringCodec();
-const _protoTool = protoTool()
 export const natClient = () => {
   var nc = null
 
@@ -11,8 +11,8 @@ export const natClient = () => {
       if(!nc){
         nc = await createConn()
       }
-      const msgPtb = await _protoTool.encodeProtob(msg)
-      nc.publish(topic, sc.encode(msgPtb));
+      const msgBin = msg.serializeBinary()
+      nc.publish(topic, msgBin);
     }catch(e){
       console.log(e)
     }
@@ -51,7 +51,11 @@ export const getTopic = (control_cnl) => `channels.${control_cnl}.>`
 export const getChnlRealtime = () => "channels.*.*.gateway"
 
 export const decodeMessageNat = async function (mes) {
-  let msgPtb = await _protoTool.decodeProtob(mes)
-  var dataNat = msgPtb.payload.toString('utf8').replace(/\0/g, '')
-  return dataNat
+  try{
+    let msgPtb = await Schema.Message.deserializeBinary(mes)
+    let data = common.bin2string(msgPtb.getPayload()).replace(/\0/g, '')
+    return data
+  }catch(e){
+    console.log({e})
+  }
 }

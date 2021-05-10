@@ -6,6 +6,7 @@ import * as nats from '../utils/nats'
 import * as things from '../helper/things'
 import common, { hassApi } from '../configs/common'
 import * as helper from '../helper/common'
+const Schema = require('../protobuf/message_pb')
 
 export function getAll(req, res) {
     const token = req.headers.authorization
@@ -129,12 +130,12 @@ export async function scanThing(req, res) {
 
         const { control_cnl } = await things.getInfoGateway(gateway_id, hassApi.SCAN_DEVICE, token) 
 
-        const msg = {
-            channel: control_cnl,
-            subtopic: `services/${hassApi.SCAN_DEVICE}`,
-            payload: helper.unpack("Messages")
-        }
-        natClient.forwardNat("channels.scanthing", msg)
+        const message = new Schema.Message()
+        message.setChannel(control_cnl)
+        message.setSubtopic(`services/${hassApi.SCAN_DEVICE}`)
+        message.setPayload("Messages")
+        
+        natClient.forwardNat("channels.scanthing", message)
         sendSuccess(req, res)({
             data: ""
         })

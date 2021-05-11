@@ -1,7 +1,7 @@
 const { connect, StringCodec } = require("nats");
 import {handleData} from '../handler/handler'
-import * as Schema from '../protobuf/message_pb'
 import * as common from '../helper/common'
+import * as proto from './protobuf'
 const sc = StringCodec();
 export const natClient = () => {
   var nc = null
@@ -11,8 +11,7 @@ export const natClient = () => {
       if(!nc){
         nc = await createConn()
       }
-      const msgBin = msg.serializeBinary()
-      nc.publish(topic, msgBin);
+      nc.publish(topic, msg);
     }catch(e){
       console.log(e)
     }
@@ -52,7 +51,7 @@ export const getChnlRealtime = () => "channels.*.*.gateway"
 
 export const decodeMessageNat = async function (mes) {
   try{
-    let msgPtb = await Schema.Message.deserializeBinary(mes)
+    let msgPtb = await proto.decodeMessage(mes)
     let data = common.bin2string(msgPtb.getPayload()).replace(/\0/g, '')
     return data
   }catch(e){

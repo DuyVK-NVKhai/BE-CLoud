@@ -3,7 +3,7 @@ import {natClient} from '../app'
 import * as nats from  '../utils/nats'
 import * as things from '../helper/things'
 import { hassApi } from '../configs/common'
-import * as helper from '../helper/common'
+import * as proto from '../utils/protobuf'
 const Schema = require('../protobuf/message_pb')
 
 export async function forwardHass(req, res) {
@@ -21,10 +21,7 @@ export async function forwardHass(req, res) {
             payload = Buffer.from(objJsonStr).toString("base64");
         }
 
-        const message = new Schema.Message()
-        message.setChannel(control_cnl)
-        message.setSubtopic(`services/${hassApi.CONFIG}/${time}`)
-        message.setPayload(payload)
+        const message = await proto.createMessage(control_cnl, `services/${hassApi.CONFIG}/${time}`, payload)
 
         natClient.forwardNat(`channels.abc`, message)
 

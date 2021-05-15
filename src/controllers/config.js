@@ -4,22 +4,16 @@ import * as nats from  '../utils/nats'
 import * as things from '../helper/things'
 import { hassApi } from '../configs/common'
 import * as proto from '../utils/protobuf'
-const Schema = require('../protobuf/message_pb')
+import * as helper from '../helper/common'
 
 export async function forwardHass(req, res) {
     try {
-        const token = req.headers.authorization
-        let { url, method, body, gatewayId } = req.body
-        const { control_cnl } = await things.getInfoGateway(gatewayId, hassApi.CONFIG, token)
+        let { hassData, gatewayId } = req.body
         let time = Date.now().toString()
-        let payload
-        if(method == "GET" || method == "DELETE"){
-            let objJsonStr = JSON.stringify({url, method});
-            payload = Buffer.from(objJsonStr).toString("base64");
-        }else{
-            let objJsonStr = JSON.stringify({url, method, body});
-            payload = Buffer.from(objJsonStr).toString("base64");
-        }
+        
+        const token = req.headers.authorization
+        let payload = helper.objectToBase64(hassData)
+        const control_cnl = await things.getControlChannelGtw(gatewayId, token)
 
         const message = await proto.createMessage(control_cnl, `services/${hassApi.CONFIG}/${time}`, payload)
 

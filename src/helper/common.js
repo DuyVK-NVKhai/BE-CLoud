@@ -16,6 +16,6 @@ export function bin2string(array){
     return result;
 }
 
-export function getChannelByTopic(topic) {
-    
+export function objectToBase64(object) {
+    return Buffer.from(JSON.stringify(object)).toString("base64");
 }

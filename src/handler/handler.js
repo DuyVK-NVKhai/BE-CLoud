@@ -11,7 +11,6 @@ export const handleData = async function(channels, messageNat) {
 
         let result = await svcLogin(username, password)
         let {token} = result.data
-        
         let gateway = await svcThing.getGatewayByChannel(channelCtl, token)
         if(gateway && wsClient[gateway.id]){
             wsClient[gateway.id].sendUTF(JSON.stringify({

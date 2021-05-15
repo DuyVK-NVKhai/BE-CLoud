@@ -1,4 +1,3 @@
-const { response } = require("express")
 
 exports.sendSuccess = (req, res) => (result) => {
     const {status, data} = result

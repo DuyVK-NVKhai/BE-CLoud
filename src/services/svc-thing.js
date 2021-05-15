@@ -1,9 +1,7 @@
 import axios from '../configs/axios'
-import {forwardNat} from '../utils/nats'
 import {url as URL} from '../configs/common'
-import { createThing } from '../controllers/thing'
 
-export async function getAll(token, params){
+export async function getAllGateway(token, params){
     const result = await axios({
         method: 'get',
         url: '/things',
@@ -123,100 +121,14 @@ export async function svcCreateGtw(id, key, name, token){
     return result
 }
 
-export async function getThingByGateway(controlChannel, token){
-    const result = await axios({
-        method: 'get',
-        url: `/channels/${controlChannel}/things`,
-        headers: {
-            "Authorization": token
-        }
-    })
-    return result.data.things
-}
-
-export async function getThingByEntity(entity_id, controlChannel, token){
-    const result = await axios({
-        method: 'get',
-        url: `/channels/${controlChannel}/things`,
-        headers: {
-            "Authorization": token
-        }
-    })
-    let thingId
-    result.data.things.forEach((thing) => {
-        if(thing.metadata.entity_id == entity_id){
-            thingId = thing.id
-        }
-    })
-    return thingId
-}
-
-export async function updateThing(id, data, token){
+export async function getControlChannelGtw(gatewayId, token) {
     try{
-        let resultGetAllThings = await axios({
-            method: 'put',
-            url: `/things/${id}`,
-            headers: {
-                "Authorization": token,
-                "Content-Type": "application/json"
-            },
-            data
-        })
-        return resultGetAllThings;
+        const gateway = await svcThing.getThing(gatewayId, token);
+        if (!gateway) {
+            throw new Error("Not found geteway")
+        }
+        return gateway.metadata.ctrl_channel_id;
     }catch(e){
-        console.log(e)
+        throw e
     }
-}
-
-export async function updateInfo(id, name, metadata, token){
-    let resultGetAllThings = await axios({
-        method: 'put',
-        url: `/things?ThingId=${id}`,
-        headers: {
-            "Authorization": token
-        },
-        data: {
-            metadata
-        }
-    })
-}
-
-export async function svcDisable(thingId, token) {
-    await axios({
-        method: 'delete',
-        url: `/things/${thingId}`,
-        headers: {
-            "Authorization": token
-        },
-    })
-}
-
-export async function connectThingToChannel(thingids, channels, token)
-{
-    let result = await axios({
-        method: 'post',
-        url: `/connect`,
-        headers: {
-            "Authorization": token
-        },
-        data: {
-            channel_ids: channels,
-            thing_ids: thingids
-        }
-    })
-}
-
-export async function addThingToGateway(channelCtl, data, token) {
-    let key = "key-" + Date.now()
-    let name = "name-" + Date.now()
-    await svcCreate(name, key, data, token)
-    let result = await getAll(token, {
-        offset: 0,
-        limit: 10,
-        name
-    })
-    let allThing = result.data.things
-    let listThingNew = [allThing[0].id]
-    let listChannel = [channelCtl]    
-    await connectThingToChannel(listThingNew, listChannel, token)
 }

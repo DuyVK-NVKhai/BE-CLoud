@@ -12,14 +12,13 @@ export async function forwardHass(req, res) {
         let time = Date.now().toString()
         
         const token = req.headers.authorization
-        let payload = helper.objectToBase64(hassData)
         const control_cnl = await things.getControlChannelGtw(gatewayId, token)
+        let payload = helper.objectToBase64(hassData)
+        const message = await proto.createMessage(control_cnl, `services/http/${time}`, payload)
 
-        const message = await proto.createMessage(control_cnl, `services/${hassApi.CONFIG}/${time}`, payload)
+        natClient.forwardNat(`channels.http`, message)
 
-        natClient.forwardNat(`channels.abc`, message)
-
-        await natClient.subscribe(`channels.*.*.gateway.${time}`, async (msgNat)=>{
+        await natClient.subscribe(`channels.*.*.gateway.http.${time}`, async (msgNat)=>{
             let msg = await nats.decodeMessageNat(msgNat.data)
             let {data} = JSON.parse(msg)
             sendSuccess(req, res)({

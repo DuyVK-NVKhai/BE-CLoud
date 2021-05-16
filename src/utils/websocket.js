@@ -14,7 +14,6 @@ export const createWbs = (server) => {
         if(request.resourceURL.pathname){
             let params = request.resourceURL.pathname.substring(1)
             let arr = params.split("/")
-            console.log({arr})
             if(arr.length >= 2 && authenToken(arr[1])){
                 wsClient[arr[0]] = connection
             }else{

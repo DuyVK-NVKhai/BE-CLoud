@@ -47,7 +47,7 @@ export const createConn = async () => connect({ servers: "nats:4222" })
 
 export const getTopic = (control_cnl) => `channels.${control_cnl}.>`
 
-export const getChnlRealtime = () => "channels.*.*.gateway"
+export const getChnlRealtime = () => "channels.*.*.gateway.socket.*"
 
 export const decodeMessageNat = async function (mes) {
   try{

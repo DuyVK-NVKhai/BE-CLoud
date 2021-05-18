@@ -7,11 +7,11 @@ import * as things from '../helper/things'
 import * as helper from '../helper/common'
 import * as proto from '../utils/protobuf'
 
-export function getAllGateway(req, res) {
+export async function getAllGateway(req, res) {
     const token = req.headers.authorization
-    svcThing.getAllGateway(token)
-        .then(sendSuccess(req, res))
-        .catch(sendError(req, res))
+    await svcThing.getAllGateway(token)
+    .then(sendSuccess(req, res))
+    .catch(sendError(req, res))
 }
 
 export async function callSocket(req, res) {

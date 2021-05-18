@@ -51,9 +51,9 @@ export const getChnlRealtime = () => "channels.*.*.gateway.socket.*"
 
 export const decodeMessageNat = async function (mes) {
   try{
+    console.log("Receive message from gateway")
     let msgPtb = await proto.decodeMessage(mes)
     let data = common.bin2string(msgPtb.getPayload()).replace(/\0/g, '')
-    console.log({data})
     return data
   }catch(e){
     console.log({e})

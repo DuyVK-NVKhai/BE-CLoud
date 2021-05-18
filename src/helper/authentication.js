@@ -2,10 +2,16 @@ import * as svcThing from '../services/svc-thing'
 
 export const authentication = async (req, res, next) => {
     let token = req.headers.authorization
-    let result = await svcThing.getAllGateway(token)
-    if(result.status == 200 && result.statusText == "OK"){
-        next()
-    }
+    await svcThing.getAllGateway(token)
+    .then(() => {
+        next();
+    })
+    .catch(e => {
+        res.status(401).send({
+            message: "Unauthorized",
+            success: false
+        })
+    })
 }
 
 export const authenToken = async (token) => {

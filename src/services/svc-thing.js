@@ -2,7 +2,7 @@ import axios from '../configs/axios'
 import {url as URL} from '../configs/common'
 
 export async function getAllGateway(token, params){
-    const result = await axios({
+    return await axios({
         method: 'get',
         url: '/things',
         params,
@@ -10,7 +10,6 @@ export async function getAllGateway(token, params){
             "Authorization": token
         }
     })
-    return result
 }
 
 export async function getByGateway(token, gatewayId){

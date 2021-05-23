@@ -4,6 +4,7 @@ import {sendSuccess, sendError} from "../utils/response"
 import * as svcThing from '../services/svc-thing'
 import * as things from '../helper/things'
 import * as helper from '../helper/common'
+import * as proto from '../utils/protobuf'
 import {natClient} from '../app'
 
 export function register(req, res) {
@@ -35,15 +36,15 @@ export async function changePassword(req, res) {
 
     svcChangePassword(oldPassword, password, token)
     .then(async (response) => {
-        // let allThing = await svcThing.getAllGateway(token)
-        // if(allThing.data.things){
-        //     allThing.data.things.forEach(async thing => {
-        //         const control_cnl = await things.getControlChannelGtw(thing.id, token)
-        //         let payload = helper.objectToBase64({password})
-        //         const message = await proto.createMessage(control_cnl, `services/config`, payload)
-        //         natClient.forwardNat('channels.config', message)
-        //     })
-        // }
+        let allThing = await svcThing.getAllGateway(token)
+        if(allThing.data.things){
+            allThing.data.things.forEach(async thing => {
+                console.log({thing})
+                let payload = helper.objectToBase64({password})
+                const message = await proto.createMessage(thing.metadata.ctrl_channel_id, `services/config`, payload)
+                natClient.forwardNat('channels.config', message)
+            })
+        }
         sendSuccess(req, res)({status: 200, data: response.msg})
     })
     .catch(sendError(req, res))

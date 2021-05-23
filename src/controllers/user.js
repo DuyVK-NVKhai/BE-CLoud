@@ -34,20 +34,17 @@ export async function changePassword(req, res) {
     }
 
     svcChangePassword(oldPassword, password, token)
-    .then(async (res) => {
-        console.log({res})
-        let allThing = await svcThing.getAllGateway(token)
-        if(allThing.data.things){
-            allThing.data.things.forEach(thing => {
-                console.log({thing})
-            })
-            console.log({allThing})
-            const control_cnl = await things.getControlChannelGtw(gatewayId, token)
-            let payload = helper.objectToBase64({password})
-            const message = await proto.createMessage(control_cnl, `services/config`, payload)
-            natClient.forwardNat('channels.config', message)
-        }
-        sendSuccess(req, res)(res)
+    .then(async (response) => {
+        // let allThing = await svcThing.getAllGateway(token)
+        // if(allThing.data.things){
+        //     allThing.data.things.forEach(async thing => {
+        //         const control_cnl = await things.getControlChannelGtw(thing.id, token)
+        //         let payload = helper.objectToBase64({password})
+        //         const message = await proto.createMessage(control_cnl, `services/config`, payload)
+        //         natClient.forwardNat('channels.config', message)
+        //     })
+        // }
+        sendSuccess(req, res)({status: 200, data: response.msg})
     })
     .catch(sendError(req, res))
 }

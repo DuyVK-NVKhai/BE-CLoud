@@ -53,7 +53,7 @@ export const decodeMessageNat = async function (mes) {
   try{
     console.log("Receive message from gateway")
     let msgPtb = await proto.decodeMessage(mes)
-    let data = common.bin2string(msgPtb.getPayload()).replace(/\0/g, '')
+    let data = new TextDecoder().decode(msgPtb.getPayload()).replace(/\0/g, '')
     return data
   }catch(e){
     console.log({e})

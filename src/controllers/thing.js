@@ -16,15 +16,14 @@ export async function getAllGateway(req, res) {
 
 export async function callSocket(req, res) {
     try {
-        const { hassData, gatewayId } = req.body
-        const token = req.headers.authorization
-        if (!valUpdateInfo(gatewayId)) {
-            sendError(req, res)
+        const { hassData, controlChannel } = req.body
+        if (controlChannel == "") {
+            sendError(req, res)("Failed validation")
+            return;
         }
-        const control_cnl = await things.getControlChannelGtw(gatewayId, token)
         let payload = helper.objectToBase64(hassData)
 
-        const message = await proto.createMessage(control_cnl, `services/socket`, payload)
+        const message = await proto.createMessage(controlChannel, `services/socket`, payload)
         natClient.forwardNat('channels.socket', message)
         // subscribe 
         sendSuccess(req, res)({ data: "" })
@@ -36,21 +35,25 @@ export async function callSocket(req, res) {
 export async function callSocketSync(req, res) {
     return new Promise(async (resolve, reject) => {
         try {
-            let { hassData, gatewayId } = req.body
+            let { hassData, controlChannel } = req.body
             let time = Date.now().toString()
-            const token = req.headers.authorization
-            const control_cnl = await things.getControlChannelGtw(gatewayId, token)
             let payload = helper.objectToBase64(hassData)
-            const message = await proto.createMessage(control_cnl, `services/socketsync/${time}`, payload)
+            const message = await proto.createMessage(controlChannel, `services/socketsync/${time}`, payload)
 
             natClient.forwardNat(`channels.socketsync`, message)
 
             await natClient.subscribe(`channels.*.*.gateway.socketsync.${time}`, async (msgNat) => {
                 let msg = await nats.decodeMessageNat(msgNat.data)
-                let { data } = JSON.parse(msg)
-                sendSuccess(req, res)({
-                    data
-                })
+                try{
+                    let data = JSON.parse(msg)
+                    sendSuccess(req, res)({
+                        data: data.data
+                    })
+                }catch(e) {
+                    sendError(req, res)({
+                        data: msg
+                    })
+                }
             })
         } catch (e) {
             sendError(req, res)(e)

@@ -27,6 +27,9 @@ export const createWbs = (server) => {
             let params = request.resourceURL.pathname.substring(1)
             let arr = params.split("/")
             if(arr.length >= 2 && authenToken(arr[1])){
+                if(!wsClient[arr[0]]){
+                    wsClient[arr[0]] = []
+                }
                 wsClient[arr[0]].push(connection)
             }else{
                 connection.sendUTF(JSON.stringify({

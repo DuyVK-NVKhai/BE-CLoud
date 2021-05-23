@@ -15,7 +15,8 @@ export async function forwardHass(req, res) {
         const control_cnl = await things.getControlChannelGtw(gatewayId, token)
         let payload = helper.objectToBase64(hassData)
         const message = await proto.createMessage(control_cnl, `services/http/${time}`, payload)
-
+        console.log({message})
+        // console.log({payload})
         natClient.forwardNat(`channels.http`, message)
 
         await natClient.subscribe(`channels.*.*.gateway.http.${time}`, async (msgNat)=>{

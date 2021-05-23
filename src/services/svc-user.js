@@ -25,3 +25,19 @@ export async function svcLogin(email, password){
     result.data.username = email
     return result
 }
+
+
+export async function svcChangePassword(oldPassword, password, token) {
+    const result = await axios({
+        method: 'patch',
+        url: '/password',
+        headers: {
+            "Authorization": token
+        },
+        data: {
+            password: password,
+            old_password: oldPassword
+        }
+    })
+    return result
+}
